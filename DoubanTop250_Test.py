@@ -30,6 +30,9 @@ def get_detail(url):
     #短评
     short_comment = tar_html.xpath("//span[@class='short']/text()")
     result.append(short_comment)
+    #简介
+    story = tar_html.xpath("//span[@property='v:summary']/text()")
+    result.append(story)
     return result
 
 def parse_html(html, writer, movies_info):  # 使用lxml爬取数据并清洗
@@ -39,9 +42,9 @@ def parse_html(html, writer, movies_info):  # 使用lxml爬取数据并清洗
     i = 0
     for movie in movies:
 
-        #获取其电影的独自链接,获取导演，主演，上映日期，片长，短评
+        #获取其电影的独自链接,获取导演，主演，上映日期，片长，短评,简介
         own_url = movie.xpath("//div[@class='hd']/a/@href")[i]
-        Directors, Stars, Date, Length, ShortComment = get_detail(own_url)
+        Directors, Stars, Date, Length, ShortComment, story = get_detail(own_url)
 
         name_num = len(movie.xpath("descendant::span[@class='title']"))
         name = ''
@@ -71,7 +74,7 @@ def parse_html(html, writer, movies_info):  # 使用lxml爬取数据并清洗
         if quote_temp:
             quote = quote_temp
 
-        movie_info = (int(num), name, float(score), country, str(year), category, int(voting_num[0:-3]), url,str(pic_url),str(quote),str(Directors),str(Stars),str(Date),str(Length),str(ShortComment))
+        movie_info = (int(num), name, float(score), country, str(year), category, int(voting_num[0:-3]), url,str(pic_url),str(quote),str(Directors),str(Stars),str(Date),str(Length),str(ShortComment),str(story))
         movies_info.append(movie_info)
         #print(movie_info)
         writer.writerow(movie_info)
@@ -87,7 +90,7 @@ def main():
     url = DOWNLOAD_URL
     # 将数据导入到csv文件中
     writer = csv.writer(open('movies.csv', 'w', newline='', encoding='utf-8'))
-    fields = ('rank',  'name', 'score', 'country', 'year', 'category', 'votes', 'douban_url','pic_url','quote','Directors','Stars','Date','Length','ShortComment')
+    fields = ('rank',  'name', 'score', 'country', 'year', 'category', 'votes', 'douban_url','pic_url','quote','Directors','Stars','Date','Length','ShortComment','short_introduction')
     writer.writerow(fields)
     movies_info = []
     while url:
